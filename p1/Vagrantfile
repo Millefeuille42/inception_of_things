@@ -1,55 +1,61 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+SERVER_NAME = 'mlabouriS'
+SERVER_IP = '192.168.56.110'
+AGENT_NAME = 'mlabouriSW'
+AGENT_IP = '192.168.56.111'
+
+MEM = 1024
+CPU = 1
+BOX = "debian/bookworm64"
+
+K3S_TOKEN = ENV["P1__K3S_TOKEN"] || "unsecuretoken"
+
 Vagrant.configure("2") do |config|
   # Generic settings
-  config.vm.box = "debian/bookworm64"
+  config.vm.box = BOX
   config.vm.synced_folder '.', '/vagrant', disabled: true
   config.vm.boot_timeout = 1200
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 1024
-    vb.cpus = 1
+    vb.memory = MEM
+    vb.cpus = CPU
    end
 
   # Pre provision script
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update && apt-get upgrade -y
-    apt-get install -y curl net-tools
-    echo "192.168.56.110 mlabouriS" >> /etc/hosts
-    echo "192.168.56.111 mlabouriSW" >> /etc/hosts
-  SHELL
+  config.vm.provision "shell", path: "scripts/prep.sh", env: {
+    SERVER__NAME:SERVER_NAME,
+    SERVER__IP:SERVER_IP,
+    AGENT__NAME:AGENT_NAME,
+    AGENT__IP:AGENT_IP
+  }
 
   # Server
-  config.vm.define "mlabouriS" do |server|
-    server.vm.hostname = "mlabouriS"
-    server.vm.network "private_network", ip: "192.168.56.110"
+  config.vm.define SERVER_NAME do |server|
+    server.vm.hostname = SERVER_NAME
+    server.vm.network "private_network", ip: SERVER_IP
     server.vm.provider "virtualbox" do |vb|
-      vb.name = "mlabouriS"
+      vb.name = SERVER_NAME
     end
 
-    server.vm.provision "shell" do |s|
-      s.env = {K3S_TOKEN:ENV['P1__K3S_TOKEN']}
-      s.inline = <<-SHELL
-        export INSTALL_K3S_EXEC="server --write-kubeconfig-mode 644 --advertise-address=192.168.56.110 --node-ip=192.168.56.110"
-        curl -sfl https://get.k3s.io | sh -
-      SHELL
-    end
+    server.vm.provision "shell", path: "scripts/k3s_server.sh", env: {
+      SERVER__IP:SERVER_IP,
+      K3S_TOKEN:K3S_TOKEN
+    }
   end
 
   # Server Worker
-  config.vm.define "mlabouriSW" do |agent|
-    agent.vm.hostname = "mlabouriSW"
-    agent.vm.network "private_network", ip: "192.168.56.111"
+  config.vm.define AGENT_NAME do |agent|
+    agent.vm.hostname = AGENT_NAME
+    agent.vm.network "private_network", ip: AGENT_IP
     agent.vm.provider "virtualbox" do |vb|
-      vb.name = "mlabouriSW"
+      vb.name = AGENT_NAME
     end
 
-    agent.vm.provision "shell" do |s|
-      s.env = {K3S_TOKEN:ENV['P1__K3S_TOKEN']}
-      s.inline = <<-SHELL 
-        export INSTALL_K3S_EXEC="agent --server https://mlabouriS:6443 --node-ip=192.168.56.111"
-        curl -sfl https://get.k3s.io | sh -
-      SHELL
-    end
+    agent.vm.provision "shell", path: "scripts/k3s_agent.sh", env: {
+      SERVER__NAME:SERVER_NAME,
+      AGENT__IP:AGENT_IP,
+      K3S_TOKEN:K3S_TOKEN
+    }
   end
 end
