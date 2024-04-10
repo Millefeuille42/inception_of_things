@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+SERVER_NAME = 'mlabouriS'
+SERVER_IP = '192.168.56.110'
+
+MEM = 2048
+CPU = 2
+BOX = "debian/bookworm64"
+
+K3S_TOKEN = ENV["P1__K3S_TOKEN"] || "unsecuretoken"
+
+Vagrant.configure("2") do |config|
+  # Generic settings
+  config.vm.box = BOX
+  config.vm.boot_timeout = 1200
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = MEM
+    vb.cpus = CPU
+   end
+
+  # Pre provision script
+  config.vm.provision "shell", path: "scripts/prep.sh", env: {
+    SERVER__NAME:SERVER_NAME,
+    SERVER__IP:SERVER_IP
+  }
+
+  # Server
+  config.vm.define SERVER_NAME do |server|
+    server.vm.hostname = SERVER_NAME
+    server.vm.network "private_network", ip: SERVER_IP
+    server.vm.provider "virtualbox" do |vb|
+      vb.name = SERVER_NAME
+    end
+
+    # Install k3s server
+    server.vm.provision "shell", path: "scripts/k3s_server.sh", env: {
+      SERVER__IP:SERVER_IP,
+      K3S_TOKEN:K3S_TOKEN
+    }
+
+    # Apply kube files
+    server.vm.provision "shell", path: "scripts/run.sh"
+  end
+end
