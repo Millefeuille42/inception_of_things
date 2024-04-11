@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: wilapp-project
+  labels:
+    app: wilapp
+spec:
+  description: "ArgoCD autodeploy app project"
+  sourceRepos:
+  - "https://git.home.mlabouri.fr/millefeuille_git/*"
+  destinations:
+  - namespace: dev
+    server: https://kubernetes.default.svc
+  orphanedResources:
+    warn: false
