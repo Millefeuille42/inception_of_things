@@ -16,3 +16,7 @@
 - https://k3d.io/v5.0.0/
 - https://argo-cd.readthedocs.io/en/stable/
 - https://www.sokube.io/en/blog/gitops-on-a-laptop-with-k3d-and-argocd-en
+
+### Bonus
+- https://helm.sh/docs/intro/using_helm/
+- https://docs.gitlab.com/charts/installation/deployment.html
