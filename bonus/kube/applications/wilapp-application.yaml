@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wilapp-application
+  labels:
+    app: wilapp
+  namespace: argocd
+spec:
+  project: wilapp-project
+  source:
+    path: app
+    repoURL: 'https://git.home.mlabouri.fr/millefeuille_git/mlabouri-iotp3.git'
+    targetRevision: HEAD
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true

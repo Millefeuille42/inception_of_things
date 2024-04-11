@@ -1,0 +1,14 @@
+[Unit]
+Description=Kubectl Port Forward Service for ArgoCD
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/kubectl port-forward --address 0.0.0.0 svc/argocd-server -n argocd 8443:443
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

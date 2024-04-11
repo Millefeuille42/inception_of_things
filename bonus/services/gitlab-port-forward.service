@@ -1,0 +1,14 @@
+[Unit]
+Description=Kubectl Port Forward Service for GitLab
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/kubectl port-forward --address 0.0.0.0 svc/gitlab-webservice-default -n gitlab 8081:8181
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
