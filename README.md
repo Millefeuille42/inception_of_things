@@ -1,6 +1,6 @@
 # Inception Of Things
 
-## Sources
+## References
 
 ### Part 1
 - https://docs.k3s.io/
