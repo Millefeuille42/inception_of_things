@@ -10,10 +10,6 @@ kubectl apply -n argocd -f /vagrant/kube/vendors/argocd.yaml
 
 echo "[INFO] -- Waiting for argocd to be ready"
 kubectl rollout status deployment argocd-server -n argocd
-until kubectl wait pod --all --for=condition=Ready --namespace=argocd; do
-  echo "waiting for pods to be created..."
-  sleep 1
-done
 
 echo "[INFO] -- Creating port forward service"
 cp /vagrant/services/kubectl-port-forward.service /etc/systemd/system/kubectl-port-forward.service
