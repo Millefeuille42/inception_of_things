@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.memory = MEM
     vb.cpus = CPU
-   end
+  end
 
   # Pre provision script
   config.vm.provision "shell", path: "scripts/prep.sh", env: {

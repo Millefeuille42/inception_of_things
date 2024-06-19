@@ -20,4 +20,3 @@ spec:
           env:
             - name: MESSAGE
               value: "This is app1"
-            
