@@ -11,13 +11,13 @@ kubectl apply -n argocd -f /vagrant/kube/vendors/argocd.yaml
 echo "[INFO] -- Waiting for argocd to be ready"
 kubectl rollout status deployment argocd-server -n argocd
 
-echo "[INFO] -- Creating port forward service"
-cp /vagrant/services/kubectl-port-forward.service /etc/systemd/system/kubectl-port-forward.service
-systemctl daemon-reload
-systemctl enable kubectl-port-forward
-systemctl start kubectl-port-forward
-
 echo "[INFO] -- Creating argocd ressources"
+kubectl apply -n argocd -f /vagrant/kube/configmaps/argocd-cmd-params-cm.yaml
+kubectl apply -n argocd -f /vagrant/kube/ingress/argocd-ingress.yaml
+
+kubectl rollout restart deployment argocd-server -n argocd
+kubectl rollout status deployment argocd-server -n argocd
+
 kubectl apply -n argocd -f /vagrant/kube/projects/wilapp-project.yaml
 kubectl apply -n argocd -f /vagrant/kube/applications/wilapp-application.yaml
 
